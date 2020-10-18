@@ -9,6 +9,7 @@
                 type="info"
                 round
                 size="small"
+                to="search"
             >搜索</van-button>
         </van-nav-bar>
         <!-- 导航栏结束 -->
@@ -54,12 +55,17 @@
 import { getUserChannels } from '@/api/user'
 import  ArticleList  from './components/article-list'
 import ChannelEdit from './components/channel-edit'
+import { mapState } from 'vuex'
+import { getItem } from '@/utils/stroage'
 
 export default {
     name: 'HomeIndex',
     components: {
         ArticleList,
         ChannelEdit
+    },
+    computed: {
+        ...mapState(['user'])
     },
     data() {
         return {
@@ -73,10 +79,28 @@ export default {
     },
     methods: {
         async loadChanels() {
-            //请求获取频道数据
-            const { data } = await getUserChannels();
-            // console.log(data);
-            this.channels = data.data.channels
+            let channels = [];
+            if(this.user) {
+                //已经登录，请求获取线上的用户频道列表数据
+                //请求获取频道数据
+                const { data } = await getUserChannels();
+                channels = data.data.channels
+            }else {
+                //没有登录，判断是否有本地存储的列表数据
+                const localChannels = getItem('channels');
+                if(localChannels) {
+                    channels = localChannels
+                }else {
+                    //用户没有登录也没有本地存储频道列表的情况
+                    //有登陆和没有登录的接口都能够实现，但是返回的数据不同，通过是否有jwt来判断
+                    const { data } = await getUserChannels();
+                    channels = data.data.channels
+                }
+
+            }
+           
+            // 一定要把变量给赋值回去
+            this.channels = channels
         },
         onUpdateActive(index) {
             // console.log(index);
