@@ -8,53 +8,102 @@
       @click-left="$router.back()"
     ></van-nav-bar>
     <!-- /导航栏 -->
-    <h1 class="title">{{article.title}}</h1>
-    <van-cell center class="user-info">
-        <div slot="title" class="name">{{article.aut_name}}</div>
-        <van-image
-            class="avatar"
-            slot="icon"
-            round
-            :src="article.aut_photo"
-            fit="cover"
-        ></van-image>
-        <div slot="label" class="pubdate">{{article.pubdate | relativeTime}}</div>
-        <van-button 
-            class="follow-btn"
-            round
-            :icon="article.is_followed ? '' : 'plus'"
-            size="small"
-            :type="article.is_followed ? 'primary' : 'info'"
-            >{{article.is_followed ? '已关注' : '关注'}}</van-button>
-    </van-cell>
-    <div class="markdown-body" v-html="article.content" ref="article_content">
+    <div class="article-wrap">
+        <h1 class="title">{{article.title}}</h1>
+        <van-cell center class="user-info">
+            <div slot="title" class="name">{{article.aut_name}}</div>
+            <van-image
+                class="avatar"
+                slot="icon"
+                round
+                :src="article.aut_photo"
+                fit="cover"
+            ></van-image>
+            <div slot="label" class="pubdate">{{article.pubdate | relativeTime}}</div>
+            <van-button 
+                class="follow-btn"
+                round
+                :icon="article.is_followed ? '' : 'plus'"
+                size="small"
+                :type="article.is_followed ? 'primary' : 'info'"
+                @click="onFollow"
+                :loading="isFollowLoading"
+                >{{article.is_followed ? '已关注' : '关注'}}</van-button>
+        </van-cell>
+        <div class="markdown-body" v-html="article.content" ref="article_content">
+        </div>
+        <!-- 评论区 -->
+        <comment-list
+            :source="articleId"
+            :list="commentList"    
+        ></comment-list>
+        <!-- /评论区 -->
     </div>
+    <!-- 底部区域 -->
+    <van-popup v-model="isPostShow" position="bottom" round>
+        <post-comment :target="articleId" @post-success="onPostSuccess"></post-comment>
+    </van-popup>
+    <div class="article-bottom">
+      <van-button
+        class="comment-btn"
+        type="default"
+        round
+        size="small"
+        @click="isPostShow = true"
+      >写评论</van-button>
+      <van-icon
+        name="comment-o"
+        info="123"
+        color="#777"
+      />
+      <van-icon
+        color="yellow"
+        :name="article.is_collected ? 'star' : 'star-o'"
+        @click="onCollect"
+      />
+      <van-icon
+        color="red"
+        :name="article.attitude === 1 ? 'good-job' : 'good-job-o'"
+        @click="onLike"
+      />
+      <van-icon name="share" color="#777777"></van-icon>
+    </div>
+    <!-- /底部区域 -->
   </div>
 </template>
 
 <script>
 import './markdown-css.css'
-import { getArticleById } from '@/api/article'
+import CommentList from './components/comment-List'
+import { addCollect,deleteCollect,getArticleById,deleteLike,addLike } from '@/api/article'
 import { ImagePreview } from 'vant';
-
+import { addFollow,deleteFollow } from '@/api/user'
+import postComment from './components/post-comment'
 
 export default {
     name: 'ArticleIndex',
-    components: {},
+    components: {
+        CommentList,
+        postComment
+    },
     props: {
         articleId: {
-        type: [Number, String ,Object],
-        required: true
+            type: [Number, String ,Object],
+            required: true
         }
     },
     data () {
         return {
-            article:{} //文章的数据对象
+            article:{}, //文章的数据对象
+            isFollowLoading: false,//关注用户的按钮load状态
+            isPostShow: false,
+            commentList: [] //文章评论列表
         }
     },
     computed: {},
     watch: {},
     created () {
+        // this.articleId = this.articleId.toString();
         this.loadArticle();
     },
     mounted () {},
@@ -63,7 +112,7 @@ export default {
             const { data } = await getArticleById(this.articleId);
             // console.log(data)
             this.article = data.data;
-            //获取所有的img
+            //获取所有的img,要在操作完数据马上拿到必须写在这里面
             this.$nextTick(() => {
                 this.handlePreviewImage();
             })
@@ -84,6 +133,70 @@ export default {
                     });
                 }
             });
+        },
+        async onFollow() {
+            //关注和取消关注
+            this.isFollowLoading = true;
+            if(this.article.is_followed) {
+                //已经关注,取消关注的操作
+                await deleteFollow(this.article.aut_id);
+                // this.article.is_followed = false;
+            }else {
+                //没有关注，关注的操作
+                await addFollow(this.article.aut_id);
+                // this.article.is_followed = true;
+            }
+            this.isFollowLoading = false;
+            //更新视图
+            this.article.is_followed = !this.article.is_followed;
+        },
+        async onCollect() {
+            this.$toast.loading({
+                message:'Loading...',
+                forbidClick: true
+            })
+            //关注和取消关注
+            if(this.article.is_collected) {
+                //已经收藏,取消关注的操作
+                await deleteCollect(this.articleId);
+            }else {
+                //没有收藏，关注的操作
+                await addCollect(this.articleId);
+            }
+            //更新视图
+            this.article.is_collected = !this.article.is_collected;
+            this.$toast.success({
+                message:`${this.article.is_collected ? '收藏成功' : '取消收藏'}`,
+                duration: 1000
+            })
+        },
+        async onLike() {
+            this.$toast.loading({
+                message:'Loading...',
+                forbidClick: true
+            })
+            //点赞和取消点赞
+            if(this.article.attitude === 1) {
+                //已经点赞,取消点赞的操作
+                await deleteLike(this.articleId);
+                this.article.attitude = -1;
+            }else {
+                //没有点赞，点赞的操作
+                await addLike(this.articleId);
+                this.article.attitude = 1;
+            }
+            //更新视图
+            this.$toast.success({
+                message:`${this.article.attitude === 1 ? '添加喜欢' : '取消喜欢'}`,
+                duration: 1000
+            })
+        },
+        onPostSuccess(comment) {
+            //发布成功后调用的函数
+            console.log(comment);
+            this.commentList.unshift(comment);
+            //关闭弹窗
+            this.isPostShow = false;
         }
     }
 }
@@ -121,8 +234,47 @@ export default {
 ul {
     list-style: unset;
 }
+.article-wrap {
+    position: fixed;
+    left: 0;
+    right: 0;
+    top: 44px;
+    bottom: 44px;
+    overflow-y: auto;
+}
 .markdown-body {
     padding: 14px;
     background-color: #fff;
 }
+ .article-bottom {
+    position: fixed;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    box-sizing: border-box;
+    height: 44px;
+    border-top: 1px solid #d8d8d8;
+    background-color: #fff;
+    .comment-btn {
+      width: 141px;
+      height: 23px;
+      border: 1px solid #eeeeee;
+      font-size: 15px;
+      line-height: 23px;
+      color: #a7a7a7;
+    }
+    .follow_icon {
+        color: yellow!important;
+    }
+    .van-icon {
+      font-size: 20px;
+      .van-info {
+        font-size: 11px;
+        background-color: #e22829;
+      }
+    }
+  }
 </style>
