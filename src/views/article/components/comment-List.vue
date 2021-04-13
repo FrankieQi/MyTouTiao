@@ -11,6 +11,7 @@
             v-for="(comment,index) in list" 
             :key="index" 
             :comment="comment"
+            @reply-click="$emit('reply-click', $event)"
         ></comment-item>
         <!-- <van-cell v-for="(comment,index) in list" :key="index" :title="comment.content" />-->
         </van-list>
@@ -36,9 +37,15 @@ export default {
         }
     },
     props: {
+        // 获取文章评论传递文章ID
+        // 获取评论回复传评论ID
         source: {
             type: [Number,String,Object],
             required: true
+        },
+        type: {
+            type: String,
+            default: 'a'
         },
         list: {
             type: Array,
@@ -55,11 +62,13 @@ export default {
             //      如果有，跟新获取下一页的页码
             //      如果没有，则把finished设置为true，不再触发加载更多
             const { data } = await getComments({
-                type: 'a',
+                type: this.type,
                 source: this.source.toString(),
                 offset: this.offset,
                 limit: this.limit
             })
+
+            this.$emit('update-total-count',data.data.total_count)
             const { results } = data.data;
             this.list.push(...results);
             this.loading = false;

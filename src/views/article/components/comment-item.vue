@@ -29,6 +29,7 @@
                     class="reply-btn"
                     type="info"
                     size="mini"
+                    @click="$emit('reply-click', comment)"
                 >{{comment.like_count}}回复</van-button>
             </div>
         </div>

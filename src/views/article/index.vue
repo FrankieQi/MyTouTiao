@@ -35,13 +35,18 @@
         <!-- 评论区 -->
         <comment-list
             :source="articleId"
-            :list="commentList"    
+            :list="commentList"
+            @update-total-count="totalCommentCount = $event"    
+            @reply-click="onReplyClick"
         ></comment-list>
         <!-- /评论区 -->
     </div>
     <!-- 底部区域 -->
     <van-popup v-model="isPostShow" position="bottom" round>
-        <post-comment :target="articleId" @post-success="onPostSuccess"></post-comment>
+        <post-comment 
+          :target="articleId" 
+          @post-success="onPostSuccess"
+        ></post-comment>
     </van-popup>
     <div class="article-bottom">
       <van-button
@@ -53,7 +58,7 @@
       >写评论</van-button>
       <van-icon
         name="comment-o"
-        info="123"
+        :info="totalCommentCount"
         color="#777"
       />
       <van-icon
@@ -67,24 +72,38 @@
         @click="onLike"
       />
       <van-icon name="share" color="#777777"></van-icon>
+      
     </div>
     <!-- /底部区域 -->
+    <!-- 评论回复 v-if是条件渲染功能-->
+    <van-popup v-model="isReplyShow" position="bottom" round>
+        <reply-comment 
+            v-if="isReplyShow"
+            :comment="commentReply"
+            @close="isReplyShow = false"
+            :articleId="articleId"
+        ></reply-comment>
+    </van-popup>
+    <!-- /评论回复 -->
   </div>
 </template>
 
 <script>
 import './markdown-css.css'
 import CommentList from './components/comment-List'
+import postComment from './components/post-comment'
+import replyComment from './components/comment-reply'
 import { addCollect,deleteCollect,getArticleById,deleteLike,addLike } from '@/api/article'
 import { ImagePreview } from 'vant';
 import { addFollow,deleteFollow } from '@/api/user'
-import postComment from './components/post-comment'
 
 export default {
     name: 'ArticleIndex',
     components: {
         CommentList,
-        postComment
+        postComment,
+        replyComment
+
     },
     props: {
         articleId: {
@@ -97,7 +116,10 @@ export default {
             article:{}, //文章的数据对象
             isFollowLoading: false,//关注用户的按钮load状态
             isPostShow: false,
-            commentList: [] //文章评论列表
+            commentList: [], //文章评论列表,数据的来源是子组件，这里是对组件数据进行操作
+            totalCommentCount: 0, // 评论总数量
+            isReplyShow: false, // 控制回复的显示状态
+            commentReply: {}
         }
     },
     computed: {},
@@ -191,12 +213,19 @@ export default {
                 duration: 1000
             })
         },
-        onPostSuccess(comment) {
+        onPostSuccess(comment) { // 父组件监听事件
             //发布成功后调用的函数
             console.log(comment);
             this.commentList.unshift(comment);
             //关闭弹窗
             this.isPostShow = false;
+            // 发布成功后更新评论的总数量
+            this.totalCommentCount++;
+        },
+        onReplyClick(comment) {
+            // console.log(comment)
+            this.commentReply = comment;
+            this.isReplyShow = true;
         }
     }
 }

@@ -12,12 +12,14 @@
           round
           fit="cover"
           :src="currentUser.photo"
+          @click="goToUserInfo(currentUser.id)"
         />
         <div class="name" slot="title">{{currentUser.name}}</div>
         <van-button
           class="update-btn"
           size="small"
           round
+          to="/user/profile"
         >编辑资料</van-button>
       </van-cell>
       <van-grid class="data-info" :border="false">
@@ -28,13 +30,13 @@
           </div>
         </van-grid-item>
         <van-grid-item class="data-info-item">
-          <div slot="text" class="text-wrap">
+          <div slot="text" class="text-wrap" @click="goToFollow(currentUser.id)">
             <div class="count">{{currentUser.follow_count}}</div>
             <div class="text">关注</div>
           </div>
         </van-grid-item>
         <van-grid-item class="data-info-item">
-          <div slot="text" class="text-wrap">
+          <div slot="text" class="text-wrap" @click="goToFans(currentUser.id)">
             <div class="count">{{currentUser.fans_count}}</div>
             <div class="text">粉丝</div>
           </div>
@@ -61,17 +63,19 @@
         icon-prefix="toutiao"
         icon="shoucang"
         text="收藏"
+        :to="{ name: 'user-love',params:{ type: 0}}"
       />
       <van-grid-item
         class="nav-grid-item"
         icon-prefix="toutiao"
         icon="lishi"
         text="历史"
+        :to="{ name: 'user-love',params:{ type: 1}}"
       />
     </van-grid>
 
     <van-cell title="消息通知" is-link to="/" />
-    <van-cell class="mb-4" title="小智同学" is-link to="/" />
+    <van-cell class="mb-4" title="小方同学" is-link to="/user/chat" />
     <van-cell
       v-if="user"
       class="logout-cell"
@@ -91,7 +95,8 @@ export default {
   },
   data () {
     return {
-        currentUser: {} // 当前登录用户信息
+        currentUser: {}, // 当前登录用户信息
+        history: 1
     }
   },
   computed: {
@@ -116,6 +121,15 @@ export default {
       this.currentUser = data.data;
     //   console.log(this.currentUser);
     },
+    goToUserInfo(event) {
+      this.$router.push(`/user/${event}`)
+    },
+    goToFollow(event) {
+      this.$router.push(`/follow/${event}/follow`)
+    },
+    goToFans(event) {
+      this.$router.push(`/follow/${event}/fans`)
+    }
   }
 }
 </script>

@@ -22,6 +22,7 @@
                 placeholder="请输入手机号"
                 name="mobile"
                 center
+                maxlength="11"
                 :rules="formRules.mobile"
             />
             <van-field
@@ -81,6 +82,8 @@ export default {
                this.$toast.success('登录成功');
                 //将后端返回的用户登录状态（token等数据）放到Vuex的容器中
                 this.$store.commit('setUser',data.data);
+                // 清除layout的缓存
+                this.$store.commit('removeCachePage','LayoutIndex')
                 //登录成功回到之前的页面
                 this.$router.back();
             } catch {
