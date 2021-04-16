@@ -15,6 +15,7 @@
     "dayjs": "^1.9.1",
     "json-bigint": "^1.0.0",
     "lodash": "^4.17.20",
+    "qrcodejs2": "^0.0.2",
     "serve": "^11.3.2",
     "socket.io-client": "^4.0.1",
     "vant": "^2.10.9",

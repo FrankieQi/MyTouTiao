@@ -74,8 +74,9 @@
       />
     </van-grid>
 
-    <van-cell title="消息通知" is-link to="/" />
+    <van-cell title="消息通知" class="mb-4" is-link to="/" />
     <van-cell class="mb-4" title="小方同学" is-link to="/user/chat" />
+    <van-cell class="mb-4" title="生成QrCode" is-link to="/qrCode" />
     <van-cell
       v-if="user"
       class="logout-cell"

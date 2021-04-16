@@ -85,7 +85,7 @@ export default {
                 // 清除layout的缓存
                 this.$store.commit('removeCachePage','LayoutIndex')
                 //登录成功回到之前的页面
-                this.$router.back();
+                this.$router.push('/');
             } catch {
                 console.log('失败');
                 this.$toast.fail('登录失败，手机号或验证码错误');

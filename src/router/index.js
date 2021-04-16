@@ -93,6 +93,10 @@ const routes = [
                 meta: {requiresAuth: false}
             }
         ]
+    },{
+        path:'/qrCode',
+        name: 'qrCode',
+        component: () => import('@/views/qrCode/'),
     }]
 
 const router = new VueRouter({

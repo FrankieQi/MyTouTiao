@@ -48,6 +48,7 @@ request.interceptors.response.use(function(response) {
   return response
 }, async function(error) {
   // 任何响应码超出2xx的都会走到这里
+  console.log('有问题')
   const status = error.response.status
   switch (status) {
     case 400:
