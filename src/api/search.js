@@ -3,20 +3,20 @@
  */
 
 import request from '@/utils/request'
-
+import store from '@/store/'
 /**
  * 获取搜索联想建议
  */
 
-export const getSearchSuggestions = q => {
-    return request({
-        methods: 'GET',
-        url:'/app/v1_0/suggestion',
-        params: {
-            q //联想建议的关键词
-        }
-    })
-}
+// export const getSearchSuggestions = q => {
+//     return request({
+//         methods: 'GET',
+//         url:'/app/v1_0/suggestion',
+//         params: {
+//             q //联想建议的关键词
+//         }
+//     })
+// }
 /**
  * 获取搜索结果
  */
@@ -24,16 +24,19 @@ export const getSearchSuggestions = q => {
 export const getSearchResult = (params) => {
     return request({
         methods: 'GET',
-        url:'/app/v1_0/search',
-        params
+        url:'/api/v1/news/search',
+        params,
+        headers: {
+            token: `${store.state.user.token}`
+        }
     })
 }
 /**
  * 获取用户搜索历史
  */
-export const getSearchHistories = () => {
-    return request({
-        methods: 'GET',
-        url:'/app/v1_0/search/histories'
-    })
-}
+// export const getSearchHistories = () => {
+//     return request({
+//         methods: 'GET',
+//         url:'/app/v1_0/search/histories'
+//     })
+// }

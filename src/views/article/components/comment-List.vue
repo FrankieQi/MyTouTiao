@@ -61,19 +61,19 @@ export default {
             //4.判断是否还有数据
             //      如果有，跟新获取下一页的页码
             //      如果没有，则把finished设置为true，不再触发加载更多
-            const { data } = await getComments({
-                type: this.type,
-                source: this.source.toString(),
-                offset: this.offset,
-                limit: this.limit
+            const data  = await getComments({
+                news_id: this.source.toString()
             })
-
-            this.$emit('update-total-count',data.data.total_count)
-            const { results } = data.data;
+            console.log(data)
+            this.$emit('update-total-count',data.data.length)
+            // this.list.push(data.data)
+            const  results  = data.data;
+            // console.log(results)
             this.list.push(...results);
             this.loading = false;
-            if(results.length) {
-                this.offset = data.data.last_id;
+            if(results.length >= data.data.length) {
+                // this.offset = data.data.last_id;
+                this.finished = true;
             } else {
                 this.finished = true;
             }

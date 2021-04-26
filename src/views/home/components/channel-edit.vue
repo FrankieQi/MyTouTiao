@@ -16,12 +16,11 @@
             <van-grid :gutter="10">
                 <van-grid-item 
                     class="grid-item "
-                    :class="{ active: index === active }"
-                    :icon="(isEdit&&index!==0) ? 'clear' : ''"
+                    :icon="(isEdit) ? 'clear' : ''"
                     v-for="(channel,index) in userChannels" 
                     :key="index" 
-                    @click="onUserChannelClick(channel,index)"
-                    :text="channel.name" />
+                    @click="onUserChannelClick(channel,index,channel.id-1)"
+                    :text="channel.cname" />
             </van-grid>
             <van-cell center :border="false">
                 <div slot="title" class="channel-title">频道推荐</div>
@@ -31,7 +30,7 @@
                     class="grid-item"
                     v-for="(channel,index) in recommendChannels" 
                     :key="index" 
-                    :text="'+ '+channel.name" 
+                    :text="'+ '+channel.cname" 
                     @click="onAdd(channel)"/>
             </van-grid>
         </div>
@@ -48,28 +47,29 @@ export default {
     data() {
         return {
             allChannels:[], //所有的频道
-            isEdit: false //控制编辑的显示状态
+            isEdit: false, //控制编辑的显示状态
+            userChannels: []
         }
     },
     computed: {
         ...mapState(['user']),
         //推荐的频道列表
-        recommendChannels() {
-            //所有频道减去我的频道就是推荐的频道
-            //filter方法：过滤数据，根据方法返回得布尔值true来收集数据
-            //满足条件得就收集起来，所以是找满足条件的所有元素 
-            return this.allChannels.filter(channel => {
-                //判断channel是不是用户频道
-                //find方法是查找满足条件的单个元素
-                return !this.userChannels.find(userChannel => {
-                    // 找到满足该条件的元素
-                    return userChannel.id === channel.id
-                })
-            })
-        }
+        // userChannels() {
+        //     //所有频道减去我的频道就是推荐的频道
+        //     //filter方法：过滤数据，根据方法返回得布尔值true来收集数据
+        //     //满足条件得就收集起来，所以是找满足条件的所有元素 
+        //     return this.allChannels.filter(channel => {
+        //         //判断channel是不是用户频道
+        //         //find方法是查找满足条件的单个元素
+        //         return !this.recommendChannels.find(userChannel => {
+        //             // 找到满足该条件的元素
+        //             return userChannel.id === channel.id
+        //         })
+        //     })
+        // }
     },
     props:{
-        userChannels:{
+        recommendChannels:{
             type: Array,
             required: true
         },
@@ -80,56 +80,66 @@ export default {
     },
     created() {
         this.loadAllChannels()
+        // this.userChannels = localStorage.getItem('channels')
     },
     methods: {
         async loadAllChannels () {
-            const { data } = await getAllChannels();
-            // console.log(data)
-            this.allChannels = data.data.channels
+            const  data  = await getAllChannels();
+            console.log(data)
+            this.allChannels = data.data
         },
         async onAdd(channel) {
             try {
-                this.userChannels.push(channel)
                 if (this.user) {
                 // 已登录，数据存储到线上
-                await addUserChannel([{
-                    id: channel.id, // 频道 id
-                    seq: this.userChannels.length // 频道的 序号
-                    }])
+                await addUserChannel({
+                    cids: channel.id, // 频道 id
+                    token:  this.user.token// 频道的 序号
+                    })
+                    this.userChannels.push(channel)
+                    // setItem('channels', this.userChannels)
                 } else {
                     // 未登录，数据存储到本地
                     setItem('channels', this.userChannels)
                 }
+                this.$toast('添加频道成功')
             } catch (err) {
                 console.log(err)
                 this.$toast('添加频道失败')
             }
         },
-        onUserChannelClick(channel,index) {
+        onUserChannelClick(channel,index,id) {
             //编辑状态，删除频道
             if(this.isEdit) {
                 this.deleteChannel(channel,index)
             } else {
-                this.switchChannel(index)
+                this.switchChannel(id)
             }
             //非编辑状态要跳转
         },
         async deleteChannel(channel,index) {
+            console.log(index)
             //从索引开始删除一个，包括索引本身
-            if(index === 0) return;
+            // if(index === 0) return;
             //如果删除的是当前激活频道之前的频道
             if(index <= this.active) {
                 //更新激活频道的索引,就是把active减去1这样就能确保激活的还是原来那个
-                this.$emit('update-active',this.active-1);
+                this.$emit('update-active',this.active+1);
             }
             this.userChannels.splice(index,1);
             //数据持久化
             if(this.user) {
+                console.log(channel.id)
                 //登录了，持久化到线上
-                await deleteUserChannel(channel.id);
+                await deleteUserChannel({
+                    cid: channel.id,
+                    token: this.user.token
+                });
+                console.log(123456789)
             } else {
                 //没有登录，持久化到本地
                 setItem('channels', this.userChannels);
+                console.log(987654321)
             }
         },
         switchChannel(index) {

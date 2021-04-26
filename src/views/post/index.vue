@@ -3,6 +3,7 @@
     <van-nav-bar
       class="app-nav-bar"
       left-arrow
+      fixed
       title="文章详情"
       @click-left="$router.back()"
     ></van-nav-bar>
@@ -67,6 +68,9 @@ export default {
 .post {
   .navBar {
       background-color: #3296fa !important;
+  }
+  .flex {
+    //   position: fixed;
   }
   .mianContent {
         padding: 20px 10px 0px 10px;
@@ -136,6 +140,7 @@ export default {
         }
     }
   .bannerImg {
+      margin-top: 20px;
       width: 100%;
       height: 200px;
   }

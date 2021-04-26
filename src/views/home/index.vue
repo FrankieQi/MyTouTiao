@@ -15,7 +15,7 @@
         <!-- 导航栏结束 -->
         <van-tabs v-model="active" class="channel-tabs">
             <van-tab
-                :title="channel.name" 
+                :title="channel.cname" 
                 v-for="channel in channels" 
                 :key="channel.id"
             >
@@ -41,12 +41,15 @@
             style="height:70%"
         >
         <!-- 频道编辑内容 -->
-        <channel-edit 
-            :active = "active"
-            :user-channels="channels"
-            v-on:close="isChannelEditShow = false"
-            v-on:update-active="onUpdateActive"
+        <keep-alive>
+            <channel-edit 
+                :active = "active"
+                :recommend-channels="channels"
+                v-on:close="isChannelEditShow = false"
+                v-on:update-active="onUpdateActive"
             ></channel-edit>
+        </keep-alive>
+        
         </van-popup>
     </div>
 </template>
@@ -83,8 +86,8 @@ export default {
             if(this.user) {
                 //已经登录，请求获取线上的用户频道列表数据
                 //请求获取频道数据
-                const { data } = await getUserChannels();
-                channels = data.data.channels
+                const  data  = await getUserChannels();
+                channels = data.data
             }else {
                 //没有登录，判断是否有本地存储的列表数据
                 const localChannels = getItem('channels');
@@ -93,8 +96,8 @@ export default {
                 }else {
                     //用户没有登录也没有本地存储频道列表的情况
                     //有登陆和没有登录的接口都能够实现，但是返回的数据不同，通过是否有jwt来判断
-                    const { data } = await getUserChannels();
-                    channels = data.data.channels
+                    const  data  = await getUserChannels();
+                    channels = data.data
                 }
 
             }

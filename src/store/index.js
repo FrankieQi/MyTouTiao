@@ -9,7 +9,7 @@ export default new Vuex.Store({
   state: {
     //当前登录用户的登录状态
     user: getItem(USER_KEY),
-    cachePages: ['LayoutIndex']
+    cachePages: ['LayoutIndex'],
   },
   mutations: {
     setUser(state,data) {

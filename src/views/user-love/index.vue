@@ -1,12 +1,18 @@
 <template>
   <div class="userLove">
     <van-nav-bar
+      fixed
       class="app-nav-bar"
       title="收藏 / 历史"
       left-arrow
-      @click-left="$router.back()"
+      @click-left="$router.push('/my')"
     />
-    <van-tabs v-model="activeName" color="#3296fa" sticky background="#f3f3f3" >
+    <van-tabs 
+      v-model="activeName" 
+      color="#3296fa" 
+      background="#f3f3f3" 
+      class="main_contain"
+    >
       <van-tab title="收藏" name="collect">
         <van-list
             v-model="loading"
@@ -34,6 +40,7 @@
 </template>
 
 <script>
+import { mapState } from 'vuex'
 import CollectItem from './components/collection'
 import HistoryItem from './components/history'
 import { getUserCollectList,getUserHistoryList } from '@/api/user'
@@ -58,6 +65,9 @@ export default {
             historyList: [] // 用户历史阅读
         }
     },
+    computed: {
+        ...mapState(['user'])
+    },
     mounted() {
       if (this.$route.params.type === 0) {
         // 收藏
@@ -69,18 +79,24 @@ export default {
     },
     methods: {
       async onLoad() {
-        let { data } = await getUserCollectList({
-          page: this.page,
-          per_page: this.per_page
+        let  data  = await getUserCollectList({
+          token: this.user.token
         })
-        const result = data.data.results
-        this.collectList.push(...result) 
+        console.log(data)
+        const result = data.data
+        let arr = []
+        for(let i in result) {
+          arr.push(result[i])
+        }
+        console.log(arr)
+        // this.collectList.push(...result)
+        this.collectList = arr
         this.loading = false
-        if(result.length) {
-            this.page++
+        if(result.length == data.data.length) {
+            this.finished = true;
         } else {
             //没有数据了，不能触发加载更多了
-            this.finished = true;
+            // this.finished = true;
         }
         console.log('触发收藏')
       },
@@ -106,5 +122,7 @@ export default {
 </script>
 
 <style>
-
+.main_contain {
+  margin-top: 40px;
+}
 </style>

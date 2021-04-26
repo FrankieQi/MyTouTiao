@@ -5,16 +5,54 @@ import request from '@/utils/request'
 import store from '@/store/'
 
 /**
- * 登录/注册
+ * 注册
  */
- 
-export const login =data=>{
-    return request({
-        method: 'POST',
-        url:'/app/v1_0/authorizations',
-        data
-    })
-}//导出一个函数
+ export const register = data=>{
+  return request({
+      method: 'POST',
+      url:'/api/v1/user/register',
+      data
+  })
+}
+
+/**
+ * 登录
+ */
+export const login = data=>{
+  return request({
+      method: 'POST',
+      url:'/api/v1/user/login',
+      data
+  })
+}
+
+/**
+ * 获取token
+ */
+ export const getToken = id =>{
+  return request({
+      method: 'GET',
+      url:`/api/v1/token/gettoken?uid=${id}`
+  })
+}
+
+/**
+ *  邮箱发送验证码
+ */
+ export const sendEmail = email=>{
+  return request({
+      method: 'GET',
+      url:`api/v1/email/getcode?email=${email}`
+  })
+}
+// export const login =data=>{
+//     return request({
+//         method: 'POST',
+//         url:'/app/v1_0/authorizations',
+//         data
+//     })
+// }
+//导出一个函数
 
 /**
  * 发送短信验证码
@@ -33,9 +71,9 @@ export const sendSms = mobile => {
 export const getCurrentUser = () => {
   return request({
     method: 'GET',
-    url: `/app/v1_0/user`,
+    url: `/api/v1/user/info`,
     headers: {
-      Authorization: `Bearer ${store.state.user.token}`
+      token: `${store.state.user.token}`
     }
   })
 }
@@ -46,7 +84,7 @@ export const getCurrentUser = () => {
 export const getUserChannels = () => {
   return request({
     method: 'GET',
-    url: '/app/v1_0/user/channels'
+    url: '/api/v1/category/getcategorylist'
   })
 }
 
@@ -57,9 +95,13 @@ export const getUserChannels = () => {
 export const addFollow = (userId) => {
   return request({
     method: 'POST',
-    url: '/app/v1_0/user/followings',
+    url: '/api/v1/relation/follow',
     data: {
-      target: userId
+      follow_id: userId,
+      token: `${store.state.user.token}`
+    },
+    headers: {
+      token: `${store.state.user.token}`
     }
   })
 }
@@ -70,8 +112,15 @@ export const addFollow = (userId) => {
 
 export const deleteFollow = (userId) => {
   return request({
-    method: 'DELETE',
-    url: `/app/v1_0/user/followings/${userId}`
+    method: 'POST',
+    url: `/api/v1/relation/del`,
+    data: {
+      follow_id: userId,
+      token: `${store.state.user.token}`
+    },
+    headers: {
+      token: `${store.state.user.token}`
+    }
   })
 }
 
@@ -90,9 +139,12 @@ export const getUserProfile = () => {
  */
  export const updateUserProfile = (data) => {
   return request({
-    method: 'PATCH',
-    url: `/app/v1_0/user/profile`,
-    data
+    method: 'POST',
+    url: `/api/v1/user/edit`,
+    data,
+    headers: {
+      token: `${store.state.user.token}`
+    }
   })
 }
 
@@ -131,11 +183,14 @@ export const getUserArticleList = (params) => {
 /**
  * 获取用户收藏列表
  */
- export const getUserCollectList = (params) => {
+ export const getUserCollectList = (data) => {
   return request({
-      methods: 'GET',
-      url:'/app/v1_0/article/collections',
-      params
+      methods: 'POST',
+      url:'/api/v1/collect/collectlist',
+      data,
+      headers: {
+        token: `${store.state.user.token}`
+      }
   })
 }
 
@@ -156,18 +211,37 @@ export const getUserArticleList = (params) => {
 export const getUserFollowList = (params) => {
   return request({
       methods: 'GET',
-      url:'/app/v1_0/user/followings',
-      params
+      url:'/api/v1/relation/followlist',
+      params,
+      headers: {
+        token: `${store.state.user.token}`
+      }
   })
 }
 
 /**
- * 获取用户粉丝数目
+ * 获取用户粉丝列表
  */
  export const getUserFansList = (params) => {
   return request({
       methods: 'GET',
-      url:'/app/v1_0/user/followers',
-      params
+      url:'/api/v1/relation/fanslist',
+      params,
+      headers: {
+        token: `${store.state.user.token}`
+      }
+  })
+}
+
+/**
+ * 获取用户点赞总数
+ */
+ export const getUserLikeNum = () => {
+  return request({
+      methods: 'GET',
+      url:'/api/v1/user/upvotesum',
+      headers: {
+        token: `${store.state.user.token}`
+      }
   })
 }

@@ -14,7 +14,7 @@
             rows="2"
             autosize
             type="textarea"
-            maxlength="10"
+            maxlength="20"
             placeholder="请输入昵称"
             show-word-limit
         />
@@ -45,7 +45,7 @@ export default {
             })
             try { // 把成功执行的代码放在try里面
                 await updateUserProfile({
-                    name: this.localName
+                    username: this.localName
                 })
                 this.$emit('close') // 关闭弹窗
                 this.$emit('input', this.localName) // 只修改父组件的页面字段

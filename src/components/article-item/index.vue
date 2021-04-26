@@ -1,8 +1,8 @@
 <template>
-  <van-cell class="article-item" :to="{ name: 'article',params:{ articleId: article.art_id}}">
+  <van-cell class="article-item" @click="goToDetail(article.id)">
     <div slot="title" class="title van-multi-ellipsis--l3">{{ article.title }}</div>
     <div slot="label">
-      <div
+      <!-- <div
         v-if="article.cover.type === 3"
         class="cover-wrap"
       >
@@ -17,19 +17,18 @@
             :src="img"
           />
         </div>
-      </div>
+      </div> -->
       <div class="label-wrap">
-        <span>{{ article.aut_name }}</span>
-        <span>{{ article.comm_count }}评论</span>
-        <span>{{ article.pubdate | relativeTime }}</span>
+        <span>{{ article.author }}</span>
+        <span>{{ article.upvote }}点赞</span>
+        <span>{{ article.update_time | relativeTime }}</span>
       </div>
     </div>
     <!-- 默认插槽的名字叫 default，可以省略 -->
     <van-image
-      v-if="article.cover.type === 1"
       class="right-cover"
       fit="cover"
-      :src="article.cover.images[0]"
+      :src="article.image_url"
     />
   </van-cell>
 </template>
@@ -42,6 +41,11 @@ export default {
             type: Object,
             required: true
         }
+    },
+    methods: {
+      goToDetail(event) {
+        this.$router.push(`/article/${event}`)
+      }
     }
 }
 </script>

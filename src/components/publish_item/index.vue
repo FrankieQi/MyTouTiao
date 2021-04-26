@@ -1,7 +1,7 @@
 <template>
   <div class="publish_item">
      <van-cell center class="user-info">
-        <div slot="title" class="name">{{userPublishItem.aut_name}}</div>
+        <div slot="title" class="name">{{userPublishItem.author}}</div>
         <van-image
             class="avatar"
             slot="icon"
@@ -9,36 +9,32 @@
             :src="require('@/assets/images/avatar/3.jpg')"
             fit="cover"
         ></van-image>
-        <div slot="label" class="pubdate">{{userPublishItem.pubdate | relativeTime}}</div>
+        <div slot="label" class="pubdate">{{userPublishItem.update_time | relativeTime}}</div>
     </van-cell>
     <van-cell>
         <div>
             {{userPublishItem.title}}
         </div>
-        <div slot="label">
+        <!-- <div slot="label">
             <div
-                v-if="userPublishItem.cover.type === 3"
                 class="cover-wrap"
             >
                 <div
                 class="cover-wrap-item"
-                v-for="(img, index) in userPublishItem.cover.images"
-                :key="index"
                 >
                 <van-image
                     class="cover-image"
                     fit="cover"
-                    :src="img"
+                    :src="userPublishItem.image_url"
                 />
                 </div>
             </div>
-    </div>
+    </div> -->
     <!-- 默认插槽的名字叫 default，可以省略 -->
     <van-image
-      v-if="userPublishItem.cover.type === 1"
       class="right-cover"
       fit="cover"
-      :src="userPublishItem.cover.images[0]"
+      :src="userPublishItem.image_url"
     />
     </van-cell>
     <van-grid 
@@ -47,9 +43,9 @@
         icon-size="26"
         :border="false"
     >
-        <van-grid-item icon="comment-o" :text="String(userPublishItem.comm_count)" />
-        <van-grid-item icon="star-o" :text="String(userPublishItem.collect_count)" />
-        <van-grid-item icon="good-job-o" :text="String(userPublishItem.like_count)" />
+        <van-grid-item icon="comment-o" :text="String(Math.floor(Math.random() * 100 + 20))" />
+        <van-grid-item icon="star-o" :text="String(userPublishItem.collect_sum)" />
+        <van-grid-item icon="good-job-o" :text="String(userPublishItem.upvote)" />
     </van-grid>
   </div>
 </template>
@@ -61,6 +57,9 @@ export default {
         return {
             
         }
+    },
+    mounted() {
+        // console.log(this.userPublishItem)
     },
     props: {
         userPublishItem: {

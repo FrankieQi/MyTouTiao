@@ -2,7 +2,7 @@
     <div class="login-container">
         <van-nav-bar
             class="app-nav-bar"
-            title="登录 / 注册"
+            title="登录"
             left-arrow
             @click-left="$router.back()"
         />
@@ -14,58 +14,52 @@
             :show-error-message="false"
             validate-first
             ref="login-form"
-            @failed="onFailed">
+            @failed="onFailed"
+            class="main_container">
             <van-field
-                v-model="user.mobile"
+                v-model="user.email"
                 icon-prefix="toutiao"
                 left-icon="shouji"
-                placeholder="请输入手机号"
-                name="mobile"
+                placeholder="请输入邮箱"
+                name="email"
                 center
-                maxlength="11"
-                :rules="formRules.mobile"
+                :rules="formRules.email"
             />
             <van-field
-                v-model="user.code"
+                v-model="user.password"
                 icon-prefix="toutiao"
                 clearable
+                type="password"
                 left-icon="yanzhengma"
-                placeholder="请输入验证码"
-                name="code"
+                placeholder="请输入密码"
+                name="password"
                 center
-                :rules="formRules.code"
+                :rules="formRules.password"
             >
-                <template #button>
-                    <van-count-down
-                        v-if="isCountDownShow"
-                        :time="1000 * 60"
-                        format="ss s"
-                        @finish="isCountDownShow = false"
-                    />
-                    <van-button 
-                        v-else
-                        size="small" 
-                        round 
-                        class="send-btn"
-                        :loading="isSendSmsLoading"
-                        @click.prevent="onSendSms">发送验证码
-                    </van-button>
-                </template>
             </van-field>
             <div class="login-btn-wrap">
                 <van-button 
                 type="info" 
                 block 
+                round
                 class="login-btn"
                 >登录</van-button>
             </div>
+            <div class="login-btn-wrap">
+                <van-button 
+                    type="warning" 
+                    block 
+                    round
+                    class="login-btn"
+                    to="/register"
+                >新用户注册</van-button>
+            </div>
         </van-form>
-        <div class="msg-tip">默认账号：13911111111  密码：246810</div>
     </div>
 </template>
 
 <script>
-import { login,sendSms } from '@/api/user'
+import { login,getToken } from '@/api/user'
 export default {
     name: "LoginIndex",
     methods: {
@@ -78,17 +72,25 @@ export default {
             });
             try {
                const { data } = await login(this.user); 
-               console.log(data);
+               let id = data.id
+               const res = await getToken(id)
+               console.log(data)
+               console.log(res)
                this.$toast.success('登录成功');
                 //将后端返回的用户登录状态（token等数据）放到Vuex的容器中
-                this.$store.commit('setUser',data.data);
+                this.$store.commit('setUser',res.data);
                 // 清除layout的缓存
-                this.$store.commit('removeCachePage','LayoutIndex')
+                // this.$store.commit('removeCachePage','LayoutIndex')
                 //登录成功回到之前的页面
                 this.$router.push('/');
-            } catch {
+            } catch(error) {
                 console.log('失败');
-                this.$toast.fail('登录失败，手机号或验证码错误');
+                console.log(error.response.data);
+                let msg = error.response.data.msg
+                if(error) {
+                    this.$toast.fail(msg);
+                }
+                // this.$toast.fail('登录失败，手机号或验证码错误');
             }
             
         },
@@ -100,69 +102,78 @@ export default {
                 })
             }
         },
-        async onSendSms() {//发送验证码事件，不会走onFailed这个事件了
-            try {//验证手机号格式
-                await this.$refs['login-form'].validate('mobile');//失败返回一个对象进入catch的执行，成功则成功
-                this.isSendSmsLoading = true // 展示按钮的 loading 状态，防止网络慢用户多次点击触发发送行为
-                //验证通过发送验证码
-                await sendSms(this.user.mobile);
-                //倒计时的处理
-                this.isCountDownShow = true;
-            } catch (error) {//如果验证失败就进入到这里来
-                let message = '';
-                if(error && error.response && error.response.status === 429) {
-                    //发短信失败的提示
-                    message = '发送太频繁,请稍后重试'
-                } else if(error.name === 'mobile') {
-                    //表单失败的提示
-                    message = error.message;
-                } else {
-                    //未知错误
-                    message = '发送失败，请稍后重试'
-                }
-                //提示用户
-                this.$toast({
-                    message: message,
-                    position: 'top'
-                    });
-            }
-            // 无论发送验证码成功还是失败，最后都要关闭发送按钮的 loading 状态
-            this.isSendSmsLoading = false
-        }
+        // async onSendSms() {//发送验证码事件，不会走onFailed这个事件了
+        //     try {//验证手机号格式
+        //         await this.$refs['login-form'].validate('email');//失败返回一个对象进入catch的执行，成功则成功
+        //         this.isSendSmsLoading = true // 展示按钮的 loading 状态，防止网络慢用户多次点击触发发送行为
+        //         //验证通过发送验证码
+        //         await sendSms(this.user.email);
+        //         //倒计时的处理
+        //         this.isCountDownShow = true;
+        //     } catch (error) {//如果验证失败就进入到这里来
+        //         let message = '';
+        //         if(error && error.response && error.response.status === 429) {
+        //             //发短信失败的提示
+        //             message = '发送太频繁,请稍后重试'
+        //         } else if(error.name === 'email') {
+        //             //表单失败的提示
+        //             message = error.message;
+        //         } else {
+        //             //未知错误
+        //             message = '发送失败，请稍后重试'
+        //         }
+        //         //提示用户
+        //         this.$toast({
+        //             message: message,
+        //             position: 'top'
+        //             });
+        //     }
+        //     // 无论发送验证码成功还是失败，最后都要关闭发送按钮的 loading 状态
+        //     this.isSendSmsLoading = false
+        // }
     },
     data() {
         return {
             user: {
-                mobile:'',//手机号
-                code:'' //验证码
+                email:'',//手机号
+                password:'' //验证码
             },
             formRules: {
-                mobile: [
-                    { required: true, message: '请输入手机号' },
-                    { pattern:/^1[3|5|7|8]\d{9}$/ , message: '请输入正确手机号'}
+                email: [
+                    { required: true, message: '请输入邮箱号' },
+                    { pattern:/^[A-Za-z0-9\u4e00-\u9fa5]+@[a-zA-Z0-9_-]+(\.[a-zA-Z0-9_-]+)+$/  , message: '请输入正确邮箱号'}
                 ],
-                code: [
-                    { required: true, message: '请输入验证码' },
-                    { pattern:/^\d{6}$/ , message: '请输入正确验证码'}
+                password: [
+                    { required: true, message: '请输入密码' },
+                    { pattern:/^(?![0-9]+$)(?![a-zA-Z]+$)[0-9A-Za-z]{6,20}$/  , message: '请输入正确密码'}
                 ]
             },
             isCountDownShow: false,
             isSendSmsLoading: false
         }
-    },
+    }
 }
 </script>
 
 <style lang="less" scoped>
 .login-container{
+    .main_container {
+        margin-top: 160px;
+        padding: 0 20px;
+    }
     .login-btn-wrap {
-        padding: 26px 16px;
+        padding: 26px 16px 0px;
         .login-btn {
             border: none;
             .van-button__text{
                 font-size: 15px;
             }
         }
+    }
+    .van-cell  {
+        border-radius: 20px;
+        margin-bottom: 20px;
+        box-shadow: 5px 5px 5px  #888888;
     }
     .send-btn {
         width: 76px;

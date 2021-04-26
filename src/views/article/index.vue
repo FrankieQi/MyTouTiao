@@ -11,24 +11,24 @@
     <div class="article-wrap">
         <h1 class="title">{{article.title}}</h1>
         <van-cell center class="user-info">
-            <div slot="title" class="name">{{article.aut_name}}</div>
+            <div slot="title" class="name">{{article.author}}</div>
             <van-image
                 class="avatar"
                 slot="icon"
                 round
-                :src="article.aut_photo"
+                :src="article.image_url"
                 fit="cover"
             ></van-image>
-            <div slot="label" class="pubdate">{{article.pubdate | relativeTime}}</div>
+            <div slot="label" class="pubdate">{{article.update_time | relativeTime}}</div>
             <van-button 
                 class="follow-btn"
                 round
-                :icon="article.is_followed ? '' : 'plus'"
+                :icon="article.follow_status == 1 ? '' : 'plus'"
                 size="small"
-                :type="article.is_followed ? 'primary' : 'info'"
+                :type="article.follow_status == 1 ? 'primary' : 'info'"
                 @click="onFollow"
                 :loading="isFollowLoading"
-                >{{article.is_followed ? '已关注' : '关注'}}</van-button>
+                >{{article.follow_status == 1 ? '已关注' : '关注'}}</van-button>
         </van-cell>
         <div class="markdown-body" v-html="article.content" ref="article_content">
         </div>
@@ -45,6 +45,7 @@
     <van-popup v-model="isPostShow" position="bottom" round>
         <post-comment 
           :target="articleId" 
+          :articleId="articleId"
           @post-success="onPostSuccess"
         ></post-comment>
     </van-popup>
@@ -63,12 +64,12 @@
       />
       <van-icon
         color="yellow"
-        :name="article.is_collected ? 'star' : 'star-o'"
+        :name="article.collect_status == 1 ? 'star' : 'star-o'"
         @click="onCollect"
       />
       <van-icon
         color="red"
-        :name="article.attitude === 1 ? 'good-job' : 'good-job-o'"
+        :name="article.upvote_status === 1 ? 'good-job' : 'good-job-o'"
         @click="onLike"
       />
       <van-icon name="share" color="#777777"></van-icon>
@@ -96,7 +97,8 @@ import replyComment from './components/comment-reply'
 import { addCollect,deleteCollect,getArticleById,deleteLike,addLike } from '@/api/article'
 import { ImagePreview } from 'vant';
 import { addFollow,deleteFollow } from '@/api/user'
-
+import { mapState } from 'vuex'
+import { getComments } from '@/api/comment'
 export default {
     name: 'ArticleIndex',
     components: {
@@ -106,13 +108,17 @@ export default {
 
     },
     props: {
-        articleId: {
-            type: [Number, String ,Object],
-            required: true
-        }
+        // articleId: {
+        //     type: [Number, String ,Object],
+        //     required: true
+        // }
+    },
+    computed: {
+        ...mapState(['user'])
     },
     data () {
         return {
+            articleId: this.$route.params.news_id,
             article:{}, //文章的数据对象
             isFollowLoading: false,//关注用户的按钮load状态
             isPostShow: false,
@@ -122,16 +128,20 @@ export default {
             commentReply: {}
         }
     },
-    computed: {},
     watch: {},
     created () {
+        this.articleId = this.$route.params.news_id
         // this.articleId = this.articleId.toString();
         this.loadArticle();
     },
-    mounted () {},
+    mounted () {
+        console.log(this.$route.params)
+    },
     methods: {
         async loadArticle() {
-            const { data } = await getArticleById(this.articleId);
+            const data  = await getArticleById({
+                news_id: this.articleId
+            });
             // console.log(data)
             this.article = data.data;
             //获取所有的img,要在操作完数据马上拿到必须写在这里面
@@ -159,36 +169,48 @@ export default {
         async onFollow() {
             //关注和取消关注
             this.isFollowLoading = true;
-            if(this.article.is_followed) {
+            if(this.article.follow_status == 1) {
                 //已经关注,取消关注的操作
-                await deleteFollow(this.article.aut_id);
-                // this.article.is_followed = false;
+                await deleteFollow(this.article.uid);
+                this.article.follow_status = 0;
             }else {
                 //没有关注，关注的操作
-                await addFollow(this.article.aut_id);
-                // this.article.is_followed = true;
+                await addFollow(this.article.uid);
+                this.article.follow_status = 1;
             }
             this.isFollowLoading = false;
             //更新视图
-            this.article.is_followed = !this.article.is_followed;
+            // this.article.is_followed = !this.article.is_followed;
+            this.$toast.success({
+                message:`${this.article.follow_status == 1 ? '关注成功' : '取消关注'}`,
+                duration: 1000
+            })
         },
         async onCollect() {
             this.$toast.loading({
                 message:'Loading...',
                 forbidClick: true
             })
-            //关注和取消关注
-            if(this.article.is_collected) {
+            //收藏和取消收藏
+            if(this.article.collect_status == 1) {
                 //已经收藏,取消关注的操作
-                await deleteCollect(this.articleId);
+                await deleteCollect({
+                    news_id: this.articleId,
+                    token: this.user.token
+                });
+                this.article.collect_status = 0
             }else {
                 //没有收藏，关注的操作
-                await addCollect(this.articleId);
+                await addCollect({
+                    news_id: this.articleId,
+                    token: this.user.token
+                });
+                this.article.collect_status = 1
             }
             //更新视图
-            this.article.is_collected = !this.article.is_collected;
+            // this.article.is_collected = !this.article.is_collected;
             this.$toast.success({
-                message:`${this.article.is_collected ? '收藏成功' : '取消收藏'}`,
+                message:`${this.article.collect_status == 1 ? '收藏成功' : '取消收藏'}`,
                 duration: 1000
             })
         },
@@ -198,25 +220,36 @@ export default {
                 forbidClick: true
             })
             //点赞和取消点赞
-            if(this.article.attitude === 1) {
+            if(this.article.upvote_status === 1) {
                 //已经点赞,取消点赞的操作
-                await deleteLike(this.articleId);
-                this.article.attitude = -1;
+                await deleteLike({
+                    news_id: this.articleId,
+                    token: this.user.token
+                });
+                this.article.upvote_status = 0;
             }else {
                 //没有点赞，点赞的操作
-                await addLike(this.articleId);
-                this.article.attitude = 1;
+                await addLike({
+                    news_id: this.articleId,
+                    token: this.user.token
+                });
+                this.article.upvote_status = 1;
             }
             //更新视图
             this.$toast.success({
-                message:`${this.article.attitude === 1 ? '添加喜欢' : '取消喜欢'}`,
+                message:`${this.article.upvote_status === 1 ? '添加喜欢' : '取消喜欢'}`,
                 duration: 1000
             })
         },
-        onPostSuccess(comment) { // 父组件监听事件
+        async onPostSuccess(comment) { // 父组件监听事件
             //发布成功后调用的函数
-            console.log(comment);
-            this.commentList.unshift(comment);
+            // console.log(comment);
+            // this.commentList.unshift(comment);
+            const  data  = await getComments({
+                news_id: comment
+            })
+            // console.log(data, 123456)
+            this.commentList = data.data
             //关闭弹窗
             this.isPostShow = false;
             // 发布成功后更新评论的总数量

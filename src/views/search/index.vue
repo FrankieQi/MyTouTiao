@@ -93,14 +93,14 @@ export default {
         async loadSearchHistories() {
             //登录的情况下获取线上历史记录+本地历史
             let searchHistories = getItem('search-histories') || [];
-            if(this.user){//登录的情况下
-                const { data } = await getSearchHistories();
-                //data为线上返回的搜索记录
-                searchHistories = [...new Set([
-                    ...searchHistories,
-                    ...data.data.keywords
-                ])]
-            }
+            // if(this.user){//登录的情况下
+            //     const { data } = await getSearchHistories();
+            //     //data为线上返回的搜索记录
+            //     searchHistories = [...new Set([
+            //         ...searchHistories,
+            //         ...data.data.keywords
+            //     ])]
+            // }
             this.searchHistories = searchHistories
         }
     }

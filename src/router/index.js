@@ -45,7 +45,7 @@ const routes = [
         name: 'search',
         component: () => import ('@/views/search/')
     },{
-        path: '/article/:articleId',
+        path: '/article/:news_id',
         name: 'article',
         component: () => import ('@/views/article/'),
         props: true
@@ -97,6 +97,10 @@ const routes = [
         path:'/qrCode',
         name: 'qrCode',
         component: () => import('@/views/qrCode/'),
+    },{
+        path: '/register',
+        name: 'register',
+        component: ()=> import('@/views/register/')
     }]
 
 const router = new VueRouter({

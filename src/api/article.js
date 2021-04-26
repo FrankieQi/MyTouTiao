@@ -2,15 +2,15 @@
  * 文章相关请求模块
  */
 import request from '@/utils/request'
-
+import store from '@/store/'
 /**
  * 获取文章列表
  */
 //传一个对象
-export const getArticles = params => {
+export const getArticles = (params) => {
   return request({
     method: 'GET',
-    url: '/app/v1_1/articles',
+    url: 'api/v1/news/getnewslist',
     params
   })
 }
@@ -19,22 +19,27 @@ export const getArticles = params => {
  * 获取文章详情
  */
 
-export const getArticleById = articleId => {
+export const getArticleById = params => {
   return request({
     method: 'GET',
-    url: `/app/v1_0/articles/${articleId}`
+    url: `/api/v1/news/getnewsinfo`,
+    params,
+    headers: {
+      token: `${store.state.user.token}`
+    }
   })
 }
 
 /**
  * 收藏文章
  */
-export const addCollect = articleId => {
+export const addCollect = data => {
   return request({
     method: 'POST',
-    url: `/app/v1_0/article/collections`,
-    data: {
-      target: articleId
+    url: `/api/v1/collect/collect`,
+    data,
+    headers: {
+      token: `${store.state.user.token}`
     }
   })
 }
@@ -43,21 +48,26 @@ export const addCollect = articleId => {
  * 取消收藏
  */
 
-export const deleteCollect = articleId => {
+export const deleteCollect = data => {
   return request({
-    method: 'DELETE',
-    url: `/app/v1_0/article/collections/${articleId}`
+    method: 'POST',
+    url: `/api/v1/collect/del`,
+    data,
+    headers: {
+      token: `${store.state.user.token}`
+    }
   })
 }
 /**
  * 点赞文章
  */
-export const addLike = articleId => {
+export const addLike = params => {
   return request({
-    method: 'POST',
-    url: `/app/v1_0/article/likings`,
-    data: {
-      target: articleId
+    method: 'GET',
+    url: `/api/v1/news/upvote`,
+    params,
+    headers: {
+      token: `${store.state.user.token}`
     }
   })
 }
@@ -66,9 +76,13 @@ export const addLike = articleId => {
  * 取消点赞
  */
 
-export const deleteLike = articleId => {
+export const deleteLike = params => {
   return request({
-    method: 'DELETE',
-    url: `/app/v1_0/article/likings/${articleId}`
+    method: 'GET',
+    url: `/api/v1/news/delUpvote`,
+    params,
+    headers: {
+      token: `${store.state.user.token}`
+    }
   })
 }

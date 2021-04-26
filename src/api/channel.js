@@ -3,6 +3,7 @@
  */
 
 import request from '@/utils/request'
+import store from '@/store/'
 
 /**
  * 获取所有的频道列表
@@ -11,19 +12,20 @@ import request from '@/utils/request'
 export const getAllChannels = () => {
     return request({
         method: 'GET',
-        url: '/app/v1_0/channels'
+        url: '/api/v1/category/getcategorylist'
     })
 }
 
 /**
  * 修改用户频道
  */
-export const addUserChannel = channels => {
+export const addUserChannel = params => {
     return request({
-      method: 'PATCH',
-      url: '/app/v1_0/user/channels',
-      data: {
-        channels
+      method: 'POST',
+      url: '/api/v1/category/addcategory',
+      params,
+      headers: {
+        token: `${store.state.user.token}`
       }
     })
   }
@@ -31,12 +33,13 @@ export const addUserChannel = channels => {
 /**
  * 删除用户指定频道
  */
-export const deleteUserChannel = channelId => {
+export const deleteUserChannel = data => {
     return request({
-      method: 'DELETE',
-      url: `/app/v1_0/user/channels/${channelId}`,
-      data: {
-        channelId
+      method: 'POST',
+      url: `/api/v1/category/delcategory`,
+      data,
+      headers: {
+        token: `${store.state.user.token}`
       }
     })
   }

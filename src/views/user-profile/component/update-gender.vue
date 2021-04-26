@@ -19,7 +19,21 @@ export default {
     data() {
         return {
             columns: ['男','女'], // default-index正好对应上  是0还是1
-            genderIndex: 0
+            genderIndex: 0,
+            value: 0
+        }
+    },
+    props: {
+        sex: {
+            type: String,
+            required: true,
+        }
+    },
+    created() {
+        if(this.sex == '男') {
+            this.value = 0
+        }else {
+            this.value = 1
         }
     },
     methods: {
@@ -37,10 +51,15 @@ export default {
             })
             // 把成功执行的代码放在try里面
             await updateUserProfile({
-                gender: this.genderIndex
+                sex: this.genderIndex+1
             })
             this.$emit('close') // 关闭弹窗
-            this.$emit('input', this.genderIndex) // 只修改父组件的页面字段
+            if(this.genderIndex==0) {
+                this.genderIndex = '男'
+            } else {
+                this.genderIndex = '女'
+            }
+            this.$emit('update-sex', this.genderIndex) // 只修改父组件的页面字段
             this.$toast.success({
                 message:'保存成功',
                 forbidClick: true // 禁止背景点击
@@ -48,12 +67,12 @@ export default {
             
         }
     },
-    props: {
-       value: {
-           type: Number,
-           required: true
-       } 
-    }
+    // props: {
+    //    value: {
+    //        type: Number,
+    //        required: true
+    //    } 
+    // }
 }
 </script>
 

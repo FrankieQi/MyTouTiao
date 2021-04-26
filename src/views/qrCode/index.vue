@@ -7,7 +7,7 @@
             @click-left="$router.back()"
         />
         <div class="bgImg">
-            <img :src="require('@/assets/images/qrCode/bg.jpg')" alt="">
+            <img :src="require('@/assets/images/qrCode/bg.jpg')" alt="" class="img">
         </div>
         <div class="qrBox">
             <div class="title">欢迎来到小方新闻</div>
@@ -51,29 +51,30 @@ export default {
     position: relative;
     width: 100vw;
     height: 100vh;
-    overflow: hidden;
-    // background-color: #F5F7F9;
-    // background-image: url('@/assets/images/qrCode/bg.jpg');
-    // .bg-contain('assets/images/qrCode/bg.jpg');
     .bgImg {
         position: absolute;
         z-index: -99;
+        .img {
+            width: 100%;
+            height: 100vh;
+        }
     }
     .qrBox {
         display: flex;
-        // justify-content: center;
         flex-direction: column;
         align-items: center;
-        background-color: rgba(41, 45, 62, 0.7);
+        // background-color: rgba(41, 45, 62, 0.7);
         width: 250px;
         height: 350px;
-        margin: 180px auto 0px;
+        margin: 80px auto 0px;
         border-radius: 12px;
-        // border: 5px solid #000;
         .title {
             margin: 50px 0;
-            color: linear-gradient(to right, #e8198b, #3B65BB);
-            font-size: 15px;
+            color: rgba(255, 238, 0, 0.952); 
+            -webkit-mask-image: -webkit-gradient(linear, 0 0, 0 bottom, from(#d30d0d), to(rgba(0, 0, 255, 0)));
+            font-size: 24px;
+            font-weight: 800;
+            font-family: Microsoft JhengHei;
         }
     }
 }

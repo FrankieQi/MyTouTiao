@@ -34,7 +34,7 @@ export default {
                 forbidClick: true // 禁止背景点击
             })
             await updateUserProfile({
-                birthday: date
+                birth: date
             })
             this.$emit('close') // 关闭弹窗
             this.$emit('input', date) // 只修改父组件的页面字段

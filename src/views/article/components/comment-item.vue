@@ -6,31 +6,31 @@
         height="36"  
         round 
         class="avatar"
-        :src="comment.aut_photo"
+        :src="comment.user_info.avatar"
         fix="cover" />
         <div slot="title" class="title-wrap">
             <div class="title-wrap-top">
-                <div class="user-name">{{comment.aut_name}}</div>
+                <div class="user-name">{{comment.user_info.username}}</div>
                 <div class="like-wrap">
                     <van-icon class="like-icon" 
-                        :name="comment.is_liking ? 'like' : 'like-o'"
+                        :name="comment.upvote_status == 1 ? 'like' : 'like-o'"
                         color="hotpink"
                         @click="onCommentLike"
                          />
-                    <span class="like-count">{{comment.reply_count}}</span>
+                    <span class="like-count">{{comment.upvote}}</span>
                 </div>
             </div>
             <div class="content" slot="label">{{comment.content}}
             </div>
             <div class="bottom-wrap">
-                <span class="pubdate">{{ comment.pubdate | dateTime}}</span>
-                <van-button
+                <span class="pubdate">{{ comment.create_time | dateTime}}</span>
+                <!-- <van-button
                     round
                     class="reply-btn"
                     type="info"
                     size="mini"
                     @click="$emit('reply-click', comment)"
-                >{{comment.like_count}}回复</van-button>
+                >{{comment.like_count}}回复</van-button> -->
             </div>
         </div>
         
@@ -39,6 +39,7 @@
 
 <script>
 import { addCommentLike,deleteCommentLike } from '@/api/comment'
+import { mapState } from 'vuex'
 export default {
     name:'CommentItem',
     props: {
@@ -47,21 +48,33 @@ export default {
             required: true
         }
     },
+    computed: {
+        ...mapState(['user'])
+    },
     methods: {
         async onCommentLike() {
-            const commentId = this.comment.com_id.toString();
-            if(this.comment.is_liking) {
+            // const commentId = this.comment.com_id.toString();
+            if(this.comment.upvote_status == 1) {
                 //已经喜欢的情况，再点就取消喜欢
-                await deleteCommentLike(commentId);
+                await deleteCommentLike({
+                    news_id: this.comment.news_id,
+                    discuss_id: this.comment.id,
+                    token: this.$store.state.user.token
+                });
                 this.comment.reply_count--;
+                this.comment.upvote_status = 0
             } else {
-                await addCommentLike(commentId);
-                this.comment.reply_count++;
+                await addCommentLike({
+                    news_id: this.comment.news_id,
+                    discuss_id: this.comment.id,
+                    token: this.$store.state.user.token
+                });
+                this.comment.upvote++;
+                this.comment.upvote_status = 1
             }
-            this.comment.is_liking = !this.comment.is_liking;
             this.$toast.success({
-                icon: `${this.comment.is_liking ? 'like' : 'like-o'}`,
-                message:`${this.comment.is_liking ? '添加喜欢' : '取消喜欢'}`,
+                icon: `${this.comment.upvote_status == 1 ? 'like' : 'like-o'}`,
+                message:`${this.comment.upvote_status == 1 ? '添加喜欢' : '取消喜欢'}`,
                 duration: 1000
             })
         }

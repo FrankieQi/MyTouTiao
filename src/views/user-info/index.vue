@@ -9,7 +9,7 @@
         <div class="topContain">
             <div class="topContain_main">
                 <div>
-                    <img :src="userInfo.photo" alt="" class="avatar">
+                    <img :src="userInfo.avatar" alt="" class="avatar">
                 </div>
                 <div class="topContain_right">
                     <van-grid 
@@ -20,32 +20,32 @@
                     >
                         <van-grid-item class="data-info-item">
                             <div slot="text" class="text-wrap">
-                                <div class="count">{{userInfo.art_count}}</div>
+                                <div class="count" v-text="20">{{userInfo.art_count}}</div>
                                 <div class="text">头条</div>
                             </div>
                         </van-grid-item>
                         <van-grid-item class="data-info-item">
                             <div slot="text" class="text-wrap">
-                                <div class="count">{{userInfo.follow_count}}</div>
+                                <div class="count">{{collectNum}}</div>
                                 <div class="text">关注</div>
                             </div>
                         </van-grid-item>
                         <van-grid-item class="data-info-item">
                             <div slot="text" class="text-wrap">
-                                <div class="count">{{userInfo.fans_count}}</div>
+                                <div class="count">{{fansNum}}</div>
                                 <div class="text">粉丝</div>
                             </div>
                         </van-grid-item>
                         <van-grid-item class="data-info-item">
                             <div class="text-wrap" slot="text">
-                                <div class="count">{{userInfo.like_count}}</div>
-                                <div class="text">获赞</div>
+                                <div class="count" v-text="5">{{userInfo.like_count}}</div>
+                                <div class="text" >获赞</div>
                             </div>
                         </van-grid-item>
                     </van-grid>
                 </div>
             </div>
-            <div class="intro">简介：{{userInfo.intro}}</div>
+            <div class="intro">简介：{{userInfo.introduction == '' ? '无' : userInfo.introduction}}</div>
         </div>
         <van-list
             v-model="loading"
@@ -65,7 +65,7 @@
 
 <script>
 import  PublishItem  from '@/components/publish_item/index'
-import { getUserInfo,getUserArticleList } from '@/api/user'
+import { getCurrentUser,getUserArticleList } from '@/api/user'
 export default {
     name: 'userInfo',
     components: {
@@ -80,20 +80,28 @@ export default {
             userArticleInfo: [], // 用户个人文章信息
             loading: false, // 加载状态
             finished: false,
+            collectNum: '',
+            fansNum: ''
         }
     },
     mounted() {
         // console.log(this.$route.params.userId)
         this.userId = this.$route.params.userId
+        let Msg = localStorage.getItem('userMsg')
+        let userMsg = JSON.parse(Msg)
+        console.log(userMsg.collectNum)
+        this.collectNum = userMsg.collectNum
+        this.fansNum = userMsg.fansNum
     },
     methods: {
         async onLoad() {
-            let res = await getUserInfo(this.userId)
+            let res = await getCurrentUser();
+            console.log(res)
+            this.userInfo = res.data
             let { data } = await getUserArticleList({
                 page: this.page,  //页码
                 per_page: this.per_page, //每一页的大小
             })
-            this.userInfo = res.data.data
             const result = data.data.results
             this.userArticleInfo.push(...result) 
             // 加载状态结束

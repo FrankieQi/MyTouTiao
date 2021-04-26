@@ -13,6 +13,7 @@
 
 <script>
 import { getSearchResult } from '@/api/search'
+import { mapState } from 'vuex'
 export default {
     name: 'search-result',
     data() {
@@ -23,6 +24,9 @@ export default {
             page:1,
             perPage:10
         };
+    },
+    computed: {
+        ...mapState(['user'])
     },
     props: {
         searchText: {
@@ -35,16 +39,17 @@ export default {
         //1.请求获取数据
             const { data } = await getSearchResult({
                 page: this.page,  //页码
-                per_page: this.perPage, //每一页的大小
-                q: this.searchText //搜索的字符
+                key: this.searchText, //搜索的字符
+                token: this.user.token
             });
         //2.数据放到列表中
-            const { results } = data.data;
-            this.list.push(...results);
+            //  console.log(data)
+            // const { results } = data.content;
+            this.list.push(...data);
         //3.关闭本次的loading
             this.loading = false;
         //4.判断是否还有数据有则更新下一页
-            if(results.length) {
+            if(data.length) {
                 //如果有就更新下一页的数据
                 this.page++
             }else {

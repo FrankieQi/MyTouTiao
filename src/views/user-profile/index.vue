@@ -11,6 +11,7 @@
             hidden 
             ref="file"
             accept="image/*"
+            name="image"
             @change="onFileChange"
         >
         <!-- /导航栏 -->
@@ -20,25 +21,25 @@
             height="30"
             round
             fit="cover"
-            :src="user.photo"
+            :src="user.avatar"
             />
         </van-cell>
         <van-cell 
             title="昵称" 
             is-link
-            :value="user.name"
+            :value="user.username"
             @click="isEditNameShow = true"
         ></van-cell>
         <van-cell 
             title="性别" 
             is-link
-            :value="user.gender === 0 ? '男' : '女'"
+            :value="user.sex"
             @click="isEditGenderShow = true"
         ></van-cell>
         <van-cell 
             title="生日" 
             is-link
-            :value="user.birthday"
+            :value="user.birth"
             @click="isEditBirthdayShow = true"
         ></van-cell>
         <van-popup
@@ -71,7 +72,7 @@
             <update-name 
               v-if="isEditNameShow"
               :gender.sync = "user.gender"
-              v-model="user.name"
+              v-model="user.username"
               @close="isEditNameShow= false"
             />
         </van-popup>
@@ -83,7 +84,8 @@
         >
             <update-gender
                 v-if="isEditGenderShow"
-                v-model="user.gender"
+                :sex="user.sex"
+                @update-sex="user.sex = $event"
                 @close="isEditGenderShow = false"
             ></update-gender>
         </van-popup>
@@ -95,7 +97,7 @@
         >
             <update-birthday
                 v-if="isEditBirthdayShow"
-                v-model="user.birthday"
+                v-model="user.birth"
                 @close="isEditBirthdayShow = false"
             ></update-birthday>
         </van-popup>
@@ -110,14 +112,14 @@
                 v-if="isEditPhotoShow"
                 :file="previewImage"
                 @close="isEditPhotoShow = false"
-                @update-photo="user.photo = $event"
+                @update-photo="user.avatar = $event"
             ></update-photo>
         </van-popup>
    </div>
 </template>
 
 <script>
-import {getUserProfile} from '@/api/user'
+import {getCurrentUser} from '@/api/user'
 import UpdateName from './component/update-name'
 import UpdateGender from './component/update-gender'
 import UpdateBirthday from './component/update-birthday'
@@ -146,9 +148,9 @@ export default {
     methods: {
         async loadUserProfile() {
             // 获取用户信息
-            const { data } = await getUserProfile()
+            const { data } = await getCurrentUser()
             // console.log(data);
-            this.user = data.data
+            this.user = data
         },
         onFileChange() {
             // input原生事件，在fileInput发生改变的时候触发

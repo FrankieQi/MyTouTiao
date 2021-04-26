@@ -4,7 +4,7 @@
             class="app-nav-bar"
             title="关注 / 粉丝"
             left-arrow
-            @click-left="$router.back()"
+            @click-left="$router.push('/my')"
         />
         <keep-alive>
             <router-view></router-view>

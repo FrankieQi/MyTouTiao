@@ -12,7 +12,8 @@
 </template>
 
 <script>
-import {updateUserPhoto} from '@/api/user';
+import {updateUserProfile} from '@/api/user';
+import axios from 'axios';
 import Cropper from 'cropperjs';
 import 'cropperjs/dist/cropper.css'
 export default {
@@ -60,20 +61,33 @@ export default {
             })
             const file = await this.getCroppedCanvas() // 返回了promise就可以用await
             // 可以把回调函数抽离出来，不用再嵌套updateUserPhoto到getCroppedCanvas中
-            const fd = new FormData()
-            fd.append('photo', file)
-            console.log(fd)
+            var fd = new FormData()
+            fd.append('image', file)
+            console.log(fd,123)
             // 这里要求的content-type是mulitipart/form-data,就要一定要提交formData对象
             // 专门用于图片上传，不能提交{}
             // const fd = new FormData()
             // fd.append('photo', 文件对象) 所以要在父组件中传递过来文件对象
             // fd.append('photo', this.file)
-            await updateUserPhoto(fd)
+            axios({
+                method: 'post',
+                url: 'http://xy.liruoning.cn:8010/api/v1/user/edit',
+                data: fd,
+                headers: {
+                    'token': this.$store.state.user.token,
+                    'Content-Type': 'multipart/form-data'
+                }
+            }).then((res)=> {
+                console.log(res)
+            })
+            // await updateUserProfile(fd)
             this.$toast.success('保存成功')
             this.$emit('close')
+            console.log(file,123)
             // 更新父组件头像
             // 这里用window.URL.createObjectURL(file)在裁切后转成blob
             //this.$emit('update-photo', this.image)
+            console.log(window.URL.createObjectURL(file))
             this.$emit('update-photo', window.URL.createObjectURL(file))
         }
     }

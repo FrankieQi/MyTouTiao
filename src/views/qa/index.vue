@@ -1,6 +1,6 @@
 <template>
     <div class="qa-container">
-        <van-swipe class="my-swipe" :autoplay="3000" indicator-color="white">
+        <van-swipe class="my-swipe" :autoplay="2000" indicator-color="white">
             <van-swipe-item >
                 <img 
                     :src="require('@/assets/images/cover/jumpfly.jpg')" 
@@ -10,7 +10,7 @@
             </van-swipe-item>
             <van-swipe-item>
                 <img 
-                :src="require('@/assets/images/cover/bestplayers.jpg')"
+                :src="require('@/assets/images/cover/yimiao.jpg')"
                 class="img"
                 @click="goToPost(3)"
                 >
@@ -32,7 +32,7 @@
         </van-swipe>
         <van-notice-bar
             left-icon="volume-o"
-            text="在代码阅读过程中人们说脏话的频率是衡量代码质量的唯一标准。"
+            text="欢迎来到小方新闻资讯软件，您的支持是我们前进最大的动力！"
         />
         <van-list
             v-model="loading"

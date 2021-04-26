@@ -1,15 +1,15 @@
 <template>
   <div class="follow_item_contain">
         <van-cell center class="user-info">
-                <div slot="title" class="name">{{follow.name}}</div>
+                <div slot="title" class="name">{{follow.username}}</div>
             <van-image
                 class="avatar"
                 slot="icon"
                 round
-                :src="follow.photo"
+                :src="follow.avatar"
                 fit="cover"
             ></van-image>
-            <div slot="label" class="pubdate">粉丝数：{{follow.fans_count}}</div>
+            <div slot="label" class="pubdate">粉丝数：{{fansNum}}</div>
             <van-button 
                 class="follow-btn"
                 round
@@ -29,7 +29,8 @@ export default {
     data() {
         return {
             isFollowLoading: false, //关注用户的按钮load状态
-            followUser: true // 是否关注了用户
+            followUser: true, // 是否关注了用户
+            fansNum: Math.floor(Math.random() * 100 + 50)
         }
     },
     props: {

@@ -33,12 +33,16 @@
 
 <script>
 import { addComment } from '@/api/comment'
+import { mapState } from 'vuex'
 export default {
     name:'PostComment',
     data() {
         return {
             message:''
         }
+    },
+    computed: {
+        ...mapState(['user'])
     },
     props: {
         // 希望父组件传递的参数
@@ -48,7 +52,7 @@ export default {
         },
         articleId: {
             type: [Number,String,Object],
-            default: null //说明没有传值的时候默认就是null，传了值就是传的数据
+            required: true //说明没有传值的时候默认就是null，传了值就是传的数据
         }
     },
     methods: {
@@ -60,15 +64,15 @@ export default {
                 message: 'loading...',
                 forbidClick: true //在toast出来的时候禁止点击
             })
-            const { data } = await addComment({
-                target: this.target.toString(),//评论的目标id（评论文章就是文章的id，对评论的回复就是评论的id）
+            const data  = await addComment({
+                token: this.user.token,
                 content: this.message,
-                art_id: this.articleId ? this.articleId.toString() : null //文章的id，对文章评论的时候不要传这个id，对文章评论回复的时候要传
+                news_id: this.target  //文章的id，对文章评论的时候不要传这个id，对文章评论回复的时候要传
             })
             console.log(data);
             //处理响应结果
             //把数据显示到列表的顶部
-            this.$emit('post-success',data.data.new_obj);//这么写的原因是这个子组件里无法取到评论列表数据和控制自身的是否弹出的
+            this.$emit('post-success', this.articleId);//这么写的原因是这个子组件里无法取到评论列表数据和控制自身的是否弹出的
             this.$toast.success('发布成功');
             this.message = '';//发布成功后清空
         },

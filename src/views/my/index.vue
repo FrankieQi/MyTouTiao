@@ -11,10 +11,10 @@
           slot="icon"
           round
           fit="cover"
-          :src="currentUser.photo"
+          :src="currentUser.avatar"
           @click="goToUserInfo(currentUser.id)"
         />
-        <div class="name" slot="title">{{currentUser.name}}</div>
+        <div class="name" slot="title">{{currentUser.username}}</div>
         <van-button
           class="update-btn"
           size="small"
@@ -25,36 +25,36 @@
       <van-grid class="data-info" :border="false">
         <van-grid-item class="data-info-item">
           <div slot="text" class="text-wrap">
-            <div class="count">{{currentUser.art_count}}</div>
+            <div class="count" v-text="20"></div>
             <div class="text">头条</div>
           </div>
         </van-grid-item>
         <van-grid-item class="data-info-item">
           <div slot="text" class="text-wrap" @click="goToFollow(currentUser.id)">
-            <div class="count">{{currentUser.follow_count}}</div>
+            <div class="count">{{collectNum}}</div>
             <div class="text">关注</div>
           </div>
         </van-grid-item>
         <van-grid-item class="data-info-item">
           <div slot="text" class="text-wrap" @click="goToFans(currentUser.id)">
-            <div class="count">{{currentUser.fans_count}}</div>
+            <div class="count">{{fansNum}}</div>
             <div class="text">粉丝</div>
           </div>
         </van-grid-item>
         <van-grid-item class="data-info-item">
           <div class="text-wrap" slot="text">
-            <div class="count">{{currentUser.like_count}}</div>
+            <div class="count"  v-text="5">{{currentUser.like_count}}</div>
             <div class="text">获赞</div>
           </div>
         </van-grid-item>
       </van-grid>
     </van-cell-group>
 
-    <div class="not-login" v-else>
-      <div @click="$router.push('/login')">
+    <div class="not-login" @click="$router.push('/login')" v-else>
+      <div>
         <img class="mobile" src="./手机.png">
       </div>
-      <div class="text">登录 / 注册</div>
+      <div class="text">登录</div>
     </div>
 
     <van-grid class="nav-grid mb-4" :column-num="2">
@@ -77,6 +77,7 @@
     <van-cell title="消息通知" class="mb-4" is-link to="/" />
     <van-cell class="mb-4" title="小方同学" is-link to="/user/chat" />
     <van-cell class="mb-4" title="生成QrCode" is-link to="/qrCode" />
+    <van-cell class="mb-4" title="注册用户" is-link to="/register" />
     <van-cell
       v-if="user"
       class="logout-cell"
@@ -88,20 +89,25 @@
 
 <script>
 import { mapState } from 'vuex'
-import { getCurrentUser } from '@/api/user'
+import { getCurrentUser,getUserLikeNum,getUserFollowList } from '@/api/user'
 export default {
   name: 'MyIndex',
   created() {
-      this.loadCurrentUser()
+      
   },
   data () {
     return {
         currentUser: {}, // 当前登录用户信息
-        history: 1
+        history: 1,
+        fansNum: 0,
+        collectNum: ''
     }
   },
   computed: {
       ...mapState(['user'])
+  },
+  activated() {
+    this.loadCurrentUser()
   },
   methods: {
       onLogout () {
@@ -119,8 +125,16 @@ export default {
     },
     async loadCurrentUser () {
       const { data } = await getCurrentUser();
-      this.currentUser = data.data;
-    //   console.log(this.currentUser);
+      this.currentUser = data
+      const res = await getUserLikeNum()
+      this.fansNum = res.data.sum 
+      const collectNum = await getUserFollowList()
+      this.collectNum = collectNum.data.length
+      let userMsg = {}
+      userMsg.collectNum = this.collectNum
+      userMsg.fansNum = this.fansNum
+      let a = JSON.stringify(userMsg) // 转成json字符串才可以取出来
+      localStorage.setItem('userMsg', a)
     },
     goToUserInfo(event) {
       this.$router.push(`/user/${event}`)
@@ -130,6 +144,9 @@ export default {
     },
     goToFans(event) {
       this.$router.push(`/follow/${event}/fans`)
+    },
+    goToResgrister() {
+      this.$router.push(`/login`)
     }
   }
 }
@@ -201,6 +218,8 @@ export default {
     .text {
       font-size: 14px;
       color: #fff;
+      margin-top: 5px;
+      margin-left: -2px;
     }
   }
 

@@ -72,11 +72,14 @@ export default {
         }
     },
     methods: {
-         onPostSuccess(comment) { // 父组件监听事件
+         async onPostSuccess(comment) { // 父组件监听事件
             //发布成功后调用的函数
             // console.log(comment);
+            // const  data  = await getComments({
+            //     news_id: this.source.toString()
+            // })
             this.commentList.unshift(comment);
-            //关闭弹窗
+            // //关闭弹窗
             this.isPostShow = false;
             // 发布成功后更新评论的总数量
             this.comment.reply_count++;
