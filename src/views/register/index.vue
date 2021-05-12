@@ -9,6 +9,9 @@
         <!-- 基于vant的表单验证 
              只有表单验证通关了表单中定义的验证规则才会触发onlogin事件
              减少了错误触发的可能性-->
+        <div class="register_bg">
+            <img :src="require('@/assets/images/register/registerImg.png')" alt="">
+        </div>
         <van-form @submit="onLogin" 
             :show-error="false" 
             :show-error-message="false"
@@ -199,25 +202,37 @@ export default {
 
 <style lang="less" scoped>
 .register-container{
+        background: #fff;
+        height: 100vh;
+    .register_bg {
+        img {
+            width: 100%;
+            height: 200px;
+        }
+    }
     .main_container {
-        margin-top: 160px;
+        margin-top: 10px;
         padding: 0 20px;
+        background: #fff;
     }
     .login-btn-wrap {
-        padding: 26px 16px 0px;
+        padding: 6px 16px 0px;
         .login-btn {
             border: none;
+            background-image: linear-gradient(to right, #556AFC , #7984FE);
+            height: 42px;
             .van-button__text{
                 font-size: 15px;
             }
         }
     }
+    
     .send-btn {
         width: 76px;
         height: 23px;
-        background-color: #ededed;
+        background-image: linear-gradient(to right, #7381FE , #7885FE);
         .van-button__text{
-            color:#666;
+            color:#fff;
             font-size: 11px;
         }
     }
@@ -229,7 +244,12 @@ export default {
     .van-cell  {
         border-radius: 20px;
         margin-bottom: 20px;
+        border: 1px solid #c6c6c6;
         box-shadow: 5px 5px 5px  #888888;
+        /deep/.van-field__left-icon {
+            color: #7381FE;
+            font-weight: 800;
+        }
     }
 }
 

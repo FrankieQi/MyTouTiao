@@ -2,6 +2,7 @@
   <div class="history_contain">
     <article-item 
         v-for="(history,index) in hostories" :key="index" :article="history"
+        class="item"
     />
   </div>
 </template>
@@ -28,5 +29,7 @@ export default {
 </script>
 
 <style>
-
+.item {
+    margin: 10px 0;
+}
 </style>

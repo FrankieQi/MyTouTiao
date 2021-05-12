@@ -86,8 +86,9 @@ export default {
                 page: this.page
             })
             // 2. 把数据放到数据列表中（往顶部追加）
-            const { results } = data.data
-            this.articles.unshift(...results)
+            const res = data
+            // console.log(res)
+            this.articles.unshift(...res)
             // 3. 关闭刷新状态,说明成功了
             this.isRefreshLoading = false;
             // 4. 提示成功

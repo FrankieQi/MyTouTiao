@@ -26,14 +26,19 @@
         </van-list>
       </van-tab>
       <van-tab title="历史" name="history">
-        <van-list
+        <van-pull-refresh v-model="isRefreshLoading" 
+        @refresh="onRefresh"
+        :success-text="refreshSuccessText"
+        :success-duration="1500">
+          <van-list
             v-model="loadingHistory"
             :finished="finishedHistory"
             finished-text="没有更多了"
             @load="onLoadHistory"
-        >
-          <history-item :hostories="historyList"></history-item>
-        </van-list>
+          >
+            <history-item :hostories="historyList"></history-item>
+          </van-list>
+        </van-pull-refresh>
       </van-tab> 
     </van-tabs>
   </div>
@@ -58,9 +63,11 @@ export default {
             collectList: [], // 用户收藏列表
             loading: false, // 加载状态
             finished: false,
+            isRefreshLoading: false,
+            refreshSuccessText: "",
             loadingHistory: false, 
             finishedHistory: false, // 完成加载历史记录
-            pageHistory: 1,
+            pageHistory: 5,
             per_page_History: 10,
             historyList: [] // 用户历史阅读
         }
@@ -98,24 +105,36 @@ export default {
             //没有数据了，不能触发加载更多了
             // this.finished = true;
         }
-        console.log('触发收藏')
       },
       async onLoadHistory() {
         console.log('触发历史')
         let { data } = await getUserHistoryList({
-          page: this.pageHistory,
-          per_page: this.per_page_History
+          page: this.pageHistory
         })
-        const result = data.data.results
+        const result = data
         this.historyList.push(...result) 
-        this.loading = false
+        this.loadingHistory = false
         if(result.length) {
             this.pageHistory++
         } else {
             //没有数据了，不能触发加载更多了
-            this.finished = true;
+            this.finishedHistory = true;
         }
         console.log(this.historyList)
+      },
+      async onRefresh() {
+        console.log(123465)
+            const { data } = await getUserHistoryList({
+                 page: this.pageHistory
+            })
+            // 2. 把数据放到数据列表中（往顶部追加）
+            const res = data
+            // console.log(res)
+            this.historyList.unshift(...res)
+            // 3. 关闭刷新状态,说明成功了
+            this.isRefreshLoading = false;
+            // 4. 提示成功
+            this.refreshSuccessText = "刷新成功"
       }
     },
 }

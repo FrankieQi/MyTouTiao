@@ -65,7 +65,7 @@
 
 <script>
 import  PublishItem  from '@/components/publish_item/index'
-import { getCurrentUser,getUserArticleList } from '@/api/user'
+import { getCurrentUser,getUserArticleList,getUserPersonNews } from '@/api/user'
 export default {
     name: 'userInfo',
     components: {
@@ -98,11 +98,10 @@ export default {
             let res = await getCurrentUser();
             console.log(res)
             this.userInfo = res.data
-            let { data } = await getUserArticleList({
+            let { data } = await getUserPersonNews({
                 page: this.page,  //页码
-                per_page: this.per_page, //每一页的大小
             })
-            const result = data.data.results
+            const result = data
             this.userArticleInfo.push(...result) 
             // 加载状态结束
             this.loading = false

@@ -200,7 +200,7 @@ export const getUserArticleList = (params) => {
  export const getUserHistoryList = (params) => {
   return request({
       methods: 'GET',
-      url:'/app/v1_0/user/histories',
+      url:'api/v1/news/getnewslist',
       params
   })
 }
@@ -240,6 +240,19 @@ export const getUserFollowList = (params) => {
   return request({
       methods: 'GET',
       url:'/api/v1/user/upvotesum',
+      headers: {
+        token: `${store.state.user.token}`
+      }
+  })
+}
+/**
+ * 获取用户个人文章列表
+ */
+ export const getUserPersonNews = (params) => {
+  return request({
+      methods: 'GET',
+      url:'/api/v1/news/user_news_list',
+      params,
       headers: {
         token: `${store.state.user.token}`
       }

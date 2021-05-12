@@ -9,6 +9,11 @@
         <!-- 基于vant的表单验证 
              只有表单验证通关了表单中定义的验证规则才会触发onlogin事件
              减少了错误触发的可能性-->
+        <van-image
+            round
+            class="image_avatar"
+            src="https://img01.yzcdn.cn/vant/cat.jpeg"
+            />
         <van-form @submit="onLogin" 
             :show-error="false" 
             :show-error-message="false"
@@ -45,7 +50,8 @@
                 class="login-btn"
                 >登录</van-button>
             </div>
-            <div class="login-btn-wrap">
+            <div class="register_text">还没有账号？<span class="register_btn" @click="goResgister">点击注册</span></div>
+            <!-- <div class="login-btn-wrap">
                 <van-button 
                     type="warning" 
                     block 
@@ -53,8 +59,11 @@
                     class="login-btn"
                     to="/register"
                 >新用户注册</van-button>
-            </div>
+            </div> -->
         </van-form>
+        <div class="background_login">
+            <img :src="require('@/assets/images/login/loginBG.png')" alt="">
+        </div>
     </div>
 </template>
 
@@ -102,6 +111,9 @@ export default {
                 })
             }
         },
+        goResgister() {
+            this.$router.push('/register')
+        }
         // async onSendSms() {//发送验证码事件，不会走onFailed这个事件了
         //     try {//验证手机号格式
         //         await this.$refs['login-form'].validate('email');//失败返回一个对象进入catch的执行，成功则成功
@@ -157,17 +169,38 @@ export default {
 
 <style lang="less" scoped>
 .login-container{
+    .image_avatar {
+        position: relative;
+        top: 100px;
+        margin-left: 50%;
+        left: -40px;
+        width: 80px;
+        height: 80px;
+    }
     .main_container {
-        margin-top: 160px;
+        margin-top: 130px;
         padding: 0 20px;
     }
     .login-btn-wrap {
         padding: 26px 16px 0px;
         .login-btn {
             border: none;
+            height: 40px;
+            background-image: linear-gradient(to right, #33B1FE , #0478DB);
             .van-button__text{
                 font-size: 15px;
             }
+        }
+    }
+    .register_text {
+        font-size: 14px;
+        color: #B0B4B7;
+        position: relative;
+        margin-left: 50%;
+        left: -70px;
+        top: 15px;
+        .register_btn {
+            color: #0478DB;
         }
     }
     .van-cell  {
@@ -188,6 +221,13 @@ export default {
         text-align: center;
         font-size: 16px;
         color: #cdcdcd;
+    }
+    .background_login {
+        position: fixed;
+        bottom: 0;
+        img {
+            width: 100%;
+        }
     }
 }
 
